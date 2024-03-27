@@ -1,0 +1,42 @@
+version: "3"
+
+networks:
+  lpnet_network:
+    driver: bridge
+
+services:
+  django:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: django
+    restart: always
+    ports:
+      - 8000:8000
+    depends_on:
+      - postgresql
+    command: ["sh", "./start.sh"]
+
+    # volumes:
+    #   - .:/app:z
+
+    networks:
+      - lpnet_network
+    env_file:
+      - ./.env/secrets.dev.env
+
+  postgresql:
+    image: postgres:latest
+    restart: always
+    container_name: lp_postgres_data
+    ports:
+      - "5433:5432"
+    env_file:
+      - ./.env/secrets.dev.env
+    networks:
+      - lpnet_network
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
